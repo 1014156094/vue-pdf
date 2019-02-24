@@ -6,11 +6,11 @@
     >
       <div class="file-container">
         <pdf
-          src="https://github.com/1014156094/vue-audio-player/blob/master/public/1.pdf?raw=true"
+          :src="require('../../../public/1.pdf')"
           :page="currentPage"
           @num-pages="pageCount = $event"
           @page-loaded="currentPage = $event"
-          @loaded="loadPdfHandler"
+          @loaded="onLoaded"
           ref="pdf"
           class="file"
           :style="{ width: 100 * fileScale + '%' }"
@@ -22,27 +22,27 @@
         </span>
         <span
           @click="scalePlus"
-          class="btn iconfont icon-zoom-in"
+          class="btn"
           :class="{ hightlight: fileScale === 3 }"
-        />
+        >+</span>
         <span
           @click="scaleMinus"
-          class="btn iconfont icon-zoom-out"
+          class="btn"
           :class="{ hightlight: fileScale === 1 }"
-        />
+        >-</span>
         <span class="scale-num">
           X{{ fileScale }}
         </span>
         <span
-          @click="changePdfPage(0)"
+          @click="changePage(0)"
           class="btn"
-          :class="{ higDhtlight: currentPage===1 }"
+          :class="{ hightlight: currentPage===1 }"
         >
           上一页
         </span>
         {{ currentPage }} / {{ pageCount }}
         <span
-          @click="changePdfPage(1)"
+          @click="changePage(1)"
           class="btn"
           :class="{ hightlight: currentPage===pageCount }"
         >
@@ -62,7 +62,10 @@ export default {
   },
   data () {
     return {
-      showDialog: false
+      currentPage: 0,
+      pageCount: 0,
+      fileScale: 1, // 文件预览大小比例
+      isFullScreen: false // 是否全屏
     }
   },
   methods: {
@@ -92,12 +95,14 @@ export default {
         }, 1000)
       })
     },
-    // pdf加载后
-    loadPdfHandler (e) {
-      this.currentPage = 1 // 加载的时候先加载第一页
+    // pdf加载完毕后
+    onLoaded (event) {
+      // 加载的时候先加载第一页
+      this.currentPage = 1
     },
-    // 改变PDF页码，val传过来区分上一页下一页的值，0上一页，1下一页
-    changePdfPage (val) {
+    // 改变PDF页码
+    changePage (val) {
+    // val传过来区分上一页下一页的值，0上一页，1下一页
       if (val === 0 && this.currentPage > 1) {
         this.currentPage--
       }

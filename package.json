@@ -33,7 +33,9 @@
       "plugin:vue/strongly-recommended",
       "@vue/standard"
     ],
-    "rules": {},
+    "rules": {
+      "no-debugger": "off"
+    },
     "parserOptions": {
       "parser": "babel-eslint"
     }
