@@ -17,7 +17,7 @@
         />
       </div>
       <div class="control-contiainer">
-        <span @click="isFullScreen = !isFullScreen">
+        <span @click="onFullScreen">
           {{ isFullScreen ? '窗口' : '全屏' }}
         </span>
         <span
@@ -69,18 +69,26 @@ export default {
     }
   },
   methods: {
+    // 修复class为annotationLayer导致的大小不对，暂时不知这是不是BUG
+    scaleFix () {
+      setTimeout(() => {
+        this.$refs.pdf.$refs.annotationLayer.style.width = this.$refs.pdf.$refs.canvas.offsetWidth + 'px'
+        this.$refs.pdf.$refs.annotationLayer.style.height = this.$refs.pdf.$refs.canvas.offsetHeight + 'px'
+        this.$refs.pdf.$refs.annotationLayer.style.transform = 'initial'
+      }, 800)
+    },
+    // 全屏窗口
+    onFullScreen () {
+      this.isFullScreen = !this.isFullScreen
+      this.scaleFix()
+    },
     // 放大
     scalePlus () {
       if (this.fileScale >= 3) {
         return
       }
       this.fileScale += 0.5
-      this.$nextTick(() => {
-        setTimeout(() => {
-          this.$refs.pdf.$refs.annotationLayer.style.width = this.$refs.pdf.$refs.canvas.offsetWidth
-          this.$refs.pdf.$refs.annotationLayer.style.height = this.$refs.pdf.$refs.canvas.offsetHeight
-        }, 1000)
-      })
+      this.scaleFix()
     },
     // 缩小
     scaleMinus () {
@@ -88,17 +96,13 @@ export default {
         return
       }
       this.fileScale -= 0.5
-      this.$nextTick(() => {
-        setTimeout(() => {
-          this.$refs.pdf.$refs.annotationLayer.style.width = this.$refs.pdf.$refs.canvas.offsetWidth
-          this.$refs.pdf.$refs.annotationLayer.style.height = this.$refs.pdf.$refs.canvas.offsetHeight
-        }, 1000)
-      })
+      this.scaleFix()
     },
     // pdf加载完毕后
     onLoaded (event) {
       // 加载的时候先加载第一页
       this.currentPage = 1
+      this.scaleFix()
     },
     // 改变PDF页码
     changePage (val) {
@@ -116,7 +120,7 @@ export default {
 
 <style lang="less" scoped>
 section.files-container {
-  background: #fff;
+  height: 500px;
   &.full-screen {
     position: fixed;
     top: 0;
@@ -124,13 +128,16 @@ section.files-container {
     bottom: 0;
     left: 0;
     z-index: 9999;
+    background: #fff;
+    width: auto;
+    height: auto;
   }
   .file-container {
     height: 100%;
     overflow: scroll;
     -webkit-overflow-scrolling: touch;
     .file {
-      height: 280px;
+      height: 100%;
     }
   }
   .control-contiainer {
